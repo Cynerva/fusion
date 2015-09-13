@@ -10,7 +10,7 @@
                      (watch ref# ~watch-fn-sym)
                      (deref ref# ~@(map (partial replace-derefs watch-fn-sym)
                                         (drop 2 expr))))
-                    ~@(map (partial replace-derefs watch-fn-sym) expr))
+                    (map (partial replace-derefs watch-fn-sym) expr))
     :else expr))
 
 (defmacro fuse [& body]

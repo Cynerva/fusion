@@ -18,3 +18,10 @@
         f (fuse @a)]
     (reset! a :changed)
     (is (= @f :changed))))
+
+(deftest fuse-function-call
+  "Derefs within function calls are watched properly"
+  (let [a (atom 0)
+        f (fuse (inc @a))]
+    (reset! a 1)
+    (is (= @f 2))))
