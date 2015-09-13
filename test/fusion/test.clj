@@ -3,5 +3,6 @@
             [fusion.core :refer [fuse]]))
 
 (deftest fused-atom-holds-same-value
-  (is (= @(fuse (atom :value))
-         :value)))
+  (let [a (atom :value)
+        f (fuse @a)]
+    (is (= @f :value))))

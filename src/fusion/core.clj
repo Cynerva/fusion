@@ -1,3 +1,3 @@
 (ns fusion.core)
 
-(def fuse identity)
+(def fuse atom)
