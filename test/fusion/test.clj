@@ -39,3 +39,10 @@
         f (fuse {:a @a})]
     (reset! a :changed)
     (is (= @f {:a :changed}))))
+
+(deftest fuse-set
+  "Derefs within sets are watched properly"
+  (let [a (atom :value)
+        f (fuse #{@a})]
+    (reset! a :changed)
+    (is (= @f #{:changed}))))

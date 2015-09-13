@@ -13,6 +13,7 @@
                     (map (partial replace-derefs watch-fn-sym) expr))
     (vector? expr) (mapv (partial replace-derefs watch-fn-sym) expr)
     (map? expr) (into {} (map (partial replace-derefs watch-fn-sym) expr))
+    (set? expr) (into #{} (map (partial replace-derefs watch-fn-sym) expr))
     :else expr))
 
 (defmacro fuse [& body]
