@@ -11,6 +11,7 @@
                      (deref ref# ~@(map (partial replace-derefs watch-fn-sym)
                                         (drop 2 expr))))
                     (map (partial replace-derefs watch-fn-sym) expr))
+    (vector? expr) (mapv (partial replace-derefs watch-fn-sym) expr)
     :else expr))
 
 (defmacro fuse [& body]

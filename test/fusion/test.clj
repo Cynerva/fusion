@@ -25,3 +25,10 @@
         f (fuse (inc @a))]
     (reset! a 1)
     (is (= @f 2))))
+
+(deftest fuse-vector
+  "Derefs within vectors are watched properly"
+  (let [a (atom :value)
+        f (fuse [@a])]
+    (reset! a :changed)
+    (is (= @f [:changed]))))
