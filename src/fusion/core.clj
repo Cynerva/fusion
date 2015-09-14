@@ -1,5 +1,15 @@
 (ns fusion.core)
 
+(deftype FusedAtom [state]
+  clojure.lang.IDeref
+  (deref [this] @@state))
+
+(defn fused-atom []
+  (FusedAtom. (atom (delay nil))))
+
+(defmacro lazy-set! [fused & body]
+  `(reset! (.state ~fused) (delay ~@body)))
+
 (defn watch [ref f]
   (add-watch ref f (fn [_ _ _ _] (f))))
 
@@ -18,8 +28,8 @@
 
 (defmacro fuse [& body]
   (let [watch-fn-sym (gensym "watch-fn")]
-    `(let [fused# (atom nil)]
+    `(let [fused# (fused-atom)]
        ((fn ~watch-fn-sym []
-          (reset! fused# (do ~@(map (partial replace-derefs watch-fn-sym)
-                                    body)))))
+          (lazy-set! fused# ~@(map (partial replace-derefs watch-fn-sym)
+                                   body))))
        fused#)))

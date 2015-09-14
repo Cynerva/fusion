@@ -56,3 +56,12 @@
     (is (= @f :changed))
     (reset! b (atom :new-atom))
     (is (= @f :new-atom))))
+
+(deftest fuse-is-lazy
+  "Fused atom doesn't evaluate until it is deref'd"
+  (let [evaluated (atom false)
+        a (atom :value)
+        f (fuse (reset! evaluated true) @a)]
+    (is (= @evaluated false))
+    @f
+    (is (= @evaluated true))))
