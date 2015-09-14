@@ -22,17 +22,17 @@
   `(reset! (.state ~fused) (delay ~@body)))
 
 (defn replace-derefs [watch-fn-sym expr]
-  (cond
-    (seq? expr) (if (= `~(first expr) `deref)
-                  `(let [ref# ~(replace-derefs watch-fn-sym (second expr))]
-                     (lazy-watch ref# ~watch-fn-sym)
-                     (deref ref# ~@(map (partial replace-derefs watch-fn-sym)
-                                        (drop 2 expr))))
-                    (map (partial replace-derefs watch-fn-sym) expr))
-    (vector? expr) (mapv (partial replace-derefs watch-fn-sym) expr)
-    (map? expr) (into {} (map (partial replace-derefs watch-fn-sym) expr))
-    (set? expr) `(hash-set ~@(map (partial replace-derefs watch-fn-sym) expr))
-    :else expr))
+  (let [replace-derefs (partial replace-derefs watch-fn-sym)]
+    (cond
+      (seq? expr) (if (= `~(first expr) `deref)
+                    `(let [ref# ~(replace-derefs (second expr))]
+                       (lazy-watch ref# ~watch-fn-sym)
+                       (deref ref# ~@(map replace-derefs (drop 2 expr))))
+                      (map replace-derefs expr))
+      (vector? expr) (mapv replace-derefs expr)
+      (map? expr) (into {} (map replace-derefs expr))
+      (set? expr) `(hash-set ~@(map replace-derefs expr))
+      :else expr)))
 
 (defmacro fuse [& body]
   (let [watch-fn-sym (gensym "watch-fn")]
