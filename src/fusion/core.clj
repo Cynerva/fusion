@@ -1,8 +1,19 @@
 (ns fusion.core)
 
+(defprotocol LazyWatchable
+  (lazy-watch [this f]))
+
+(extend-type clojure.lang.Atom
+  LazyWatchable
+  (lazy-watch [this f]
+    (add-watch this f (fn [_ _ _ _] (f)))))
+
 (deftype FusedAtom [state]
   clojure.lang.IDeref
-  (deref [this] @@state))
+  (deref [this] @@state)
+  LazyWatchable
+  (lazy-watch [this f]
+    (add-watch state f (fn [_ _ _ _] (f)))))
 
 (defn fused-atom []
   (FusedAtom. (atom (delay nil))))
@@ -10,14 +21,11 @@
 (defmacro lazy-set! [fused & body]
   `(reset! (.state ~fused) (delay ~@body)))
 
-(defn watch [ref f]
-  (add-watch ref f (fn [_ _ _ _] (f))))
-
 (defn replace-derefs [watch-fn-sym expr]
   (cond
     (seq? expr) (if (= `~(first expr) `deref)
                   `(let [ref# ~(replace-derefs watch-fn-sym (second expr))]
-                     (watch ref# ~watch-fn-sym)
+                     (lazy-watch ref# ~watch-fn-sym)
                      (deref ref# ~@(map (partial replace-derefs watch-fn-sym)
                                         (drop 2 expr))))
                     (map (partial replace-derefs watch-fn-sym) expr))

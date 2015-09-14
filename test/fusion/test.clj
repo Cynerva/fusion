@@ -65,3 +65,11 @@
     (is (= @evaluated false))
     @f
     (is (= @evaluated true))))
+
+(deftest fuse-fused
+  "Can fuse another fused atom"
+  (let [a (atom :value)
+        f1 (fuse @a)
+        f2 (fuse @f1)]
+    (reset! a :changed)
+    (is (= @f2 :changed))))
