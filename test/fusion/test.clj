@@ -47,6 +47,13 @@
     (reset! a :changed)
     (is (= @f #{:changed}))))
 
+(deftest fuse-set-conflict
+  "Derefs within sets can handle conflicts properly"
+  (let [a (atom :value)
+        b (atom :value)
+        f (fuse #{@a @b})]
+    (is (= @f #{:value}))))
+
 (deftest fuse-nested-derefs
   "Can fuse derefs within derefs. Don't know why you would do this but hey."
   (let [a (atom :value)
