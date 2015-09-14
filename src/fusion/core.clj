@@ -33,11 +33,11 @@
 
 (defn- replace-derefs [expr]
   (cond
+    (= `~expr `deref) `deref-and-notify
     (seq? expr) (map replace-derefs expr)
     (vector? expr) (mapv replace-derefs expr)
     (map? expr) (into {} (map replace-derefs expr))
     (set? expr) `(hash-set ~@(map replace-derefs expr))
-    (= `~expr `deref) `deref-and-notify
     :else expr))
 
 (defmacro fuse [& body]
