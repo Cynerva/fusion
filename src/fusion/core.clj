@@ -12,19 +12,19 @@
 
 (deftype FusedAtom [f state]
   clojure.lang.IDeref
-  (deref [this] @@state)
+  (deref [this]
+    (binding [*watcher* this]
+      @@state))
   LazyWatchable
   (lazy-watch [this f]
     (add-watch state f (fn [_ _ _ _] (f)))))
 
 (defn dirty-fused! [fused]
-  (reset! (.state fused) (delay (binding [*watcher* fused]
-                                  ((.f fused))))))
+  (reset! (.state fused)
+          (delay ((.f fused)))))
 
 (defn make-fused-atom [f]
-  (let [fused (FusedAtom. f (atom nil))]
-    (dirty-fused! fused)
-    fused))
+  (FusedAtom. f (atom (delay (f)))))
 
 (defn deref-and-notify [ref & args]
   (let [watcher *watcher*]
