@@ -73,6 +73,16 @@
     @f
     (is (= @evaluated true))))
 
+(deftest fuse-only-evals-once
+  "Fused atom only evaluates once (until a change is observed)"
+  (let [eval-count (atom 0)
+        a (atom :value)
+        f (fuse (swap! eval-count inc)
+                @a)]
+    @f
+    @f
+    (is (= @eval-count 1))))
+
 (deftest fuse-fused
   "Can fuse another fused atom"
   (let [a (atom :value)
