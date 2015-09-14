@@ -48,7 +48,7 @@
     (is (= @f #{:changed}))))
 
 (deftest fuse-set-conflict
-  "Derefs within sets can handle conflicts properly"
+  "Derefs within sets can handle conflicts"
   (let [a (atom :value)
         b (atom :value)
         f (fuse #{@a @b})]
