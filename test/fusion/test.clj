@@ -46,3 +46,13 @@
         f (fuse #{@a})]
     (reset! a :changed)
     (is (= @f #{:changed}))))
+
+(deftest fuse-nested-derefs
+  "Can fuse derefs within derefs. Don't know why you would do this but hey."
+  (let [a (atom :value)
+        b (atom a)
+        f (fuse @@b)]
+    (reset! a :changed)
+    (is (= @f :changed))
+    (reset! b (atom :new-atom))
+    (is (= @f :new-atom))))
