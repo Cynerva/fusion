@@ -3,12 +3,12 @@
 (def ^:dynamic *watcher*)
 
 (defprotocol LazyWatchable
-  (lazy-watch [this f]))
+  (lazy-watch [this key f]))
 
 (extend-type clojure.lang.Atom
   LazyWatchable
-  (lazy-watch [this f]
-    (add-watch this f (fn [_ _ _ _] (f)))))
+  (lazy-watch [this key f]
+    (add-watch this key (fn [_ _ _ _] (f)))))
 
 (deftype FusedAtom [f state]
   clojure.lang.IDeref
@@ -16,8 +16,8 @@
     (binding [*watcher* this]
       @@state))
   LazyWatchable
-  (lazy-watch [this f]
-    (add-watch state f (fn [_ _ _ _] (f)))))
+  (lazy-watch [this key f]
+    (add-watch state key (fn [_ _ _ _] (f)))))
 
 (defn dirty-fused! [fused]
   (reset! (.state fused)
@@ -28,7 +28,7 @@
 
 (defn deref-and-notify [ref & args]
   (let [watcher *watcher*]
-    (lazy-watch ref #(dirty-fused! watcher)))
+    (lazy-watch ref watcher #(dirty-fused! watcher)))
   (apply deref ref args))
 
 (defn- replace-derefs [expr]
