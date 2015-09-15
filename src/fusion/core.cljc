@@ -1,18 +1,19 @@
-(ns fusion.core)
+(ns fusion.core
+  #?(:cljs (:require-macros fusion.core)))
 
 (def ^:dynamic *watcher*)
 
 (defprotocol LazyWatchable
   (lazy-watch [this key f]))
 
-(extend-type clojure.lang.Atom
+(extend-type #?(:clj clojure.lang.Atom :cljs Atom)
   LazyWatchable
   (lazy-watch [this key f]
     (add-watch this key (fn [_ _ _ _] (f)))))
 
 (deftype FusedAtom [f state]
-  clojure.lang.IDeref
-  (deref [this]
+  #?(:clj clojure.lang.IDeref :cljs IDeref)
+  (#?(:clj deref :cljs -deref) [this]
     (binding [*watcher* this]
       @@state))
   LazyWatchable
@@ -31,6 +32,7 @@
     (lazy-watch ref watcher #(dirty-fused! watcher)))
   (apply deref ref args))
 
+#?(:clj
 (defn- replace-derefs [expr]
   (cond
     (= `~expr `deref) `deref-and-notify
@@ -38,7 +40,8 @@
     (vector? expr) (mapv replace-derefs expr)
     (map? expr) (into {} (map replace-derefs expr))
     (set? expr) `(hash-set ~@(map replace-derefs expr))
-    :else expr))
+    :else expr)))
 
+#?(:clj
 (defmacro fuse [& body]
-  `(make-fused-atom (fn [] ~@(map replace-derefs body))))
+  `(make-fused-atom (fn [] ~@(map replace-derefs body)))))
