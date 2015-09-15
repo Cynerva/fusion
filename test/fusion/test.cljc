@@ -1,6 +1,8 @@
 (ns fusion.test
-  (:require [clojure.test :refer [deftest is]]
-            [fusion.core :refer [fuse]]))
+  #?(:clj (:require [clojure.test :refer [deftest is]]
+                    [fusion.core :refer [fuse]])
+     :cljs (:require [cljs.test :refer-macros [deftest is]]
+                     [fusion.core :refer-macros [fuse]])))
 
 (deftest fuse-constant
   "Can fuse a constant"

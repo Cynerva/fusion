@@ -21,8 +21,8 @@
     (add-watch state key (fn [_ _ _ _] (f)))))
 
 (defn dirty-fused! [fused]
-  (reset! (.state fused)
-          (delay ((.f fused)))))
+  (reset! (.-state fused)
+          (delay ((.-f fused)))))
 
 (defn make-fused-atom [f]
   (FusedAtom. f (atom (delay (f)))))
