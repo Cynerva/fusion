@@ -9,7 +9,7 @@ State propagation via atoms. Usable in Clojure and ClojureScript.
 
 (def a (atom 1))
 (def b (atom 2))
-(def sum (fuse (+ @a @b))
+(def sum (fuse (+ @a @b)))
 
 @sum ; 3
 
