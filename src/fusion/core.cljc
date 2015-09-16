@@ -1,8 +1,6 @@
 (ns fusion.core
   #?(:clj (:import [clojure.lang Atom IDeref])))
 
-(def ^:dynamic *watcher*)
-
 (defprotocol LazyWatchable
   (lazy-watch [this key f]))
 
@@ -14,34 +12,38 @@
 (deftype FusedAtom [f state]
   IDeref
   (#?(:clj deref :cljs -deref) [this]
-    (binding [*watcher* this]
-      @@state))
+    @@state)
   LazyWatchable
   (lazy-watch [this key f]
     (add-watch state key (fn [_ _ _ _] (f)))))
 
 (defn dirty-fused! [fused]
   (reset! (.-state fused)
-          (delay ((.-f fused)))))
+          (delay ((.-f fused)
+                  fused))))
 
 (defn make-fused-atom [f]
-  (FusedAtom. f (atom (delay (f)))))
-
-(defn deref-and-notify [ref & args]
-  (let [watcher *watcher*]
-    (lazy-watch ref watcher #(dirty-fused! watcher)))
-  (apply deref ref args))
+  (let [fused (FusedAtom. f (atom nil))]
+    (dirty-fused! fused)
+    fused))
 
 #?(:clj
-(defn- replace-derefs [expr]
-  (cond
-    (= `~expr `deref) `deref-and-notify
-    (seq? expr) (map replace-derefs expr)
-    (vector? expr) (mapv replace-derefs expr)
-    (map? expr) (into {} (map replace-derefs expr))
-    (set? expr) `(hash-set ~@(map replace-derefs expr))
-    :else expr)))
+(defn- replace-derefs [fused-sym expr]
+  (let [replace-derefs (partial replace-derefs fused-sym)]
+    (cond
+      (seq? expr) (if (= `~(first expr) `deref)
+                    `(let [ref# ~(replace-derefs (second expr))]
+                       (lazy-watch ref# ~fused-sym #(dirty-fused! ~fused-sym))
+                       (deref ref# ~@(map replace-derefs (drop 2 expr))))
+                    (map replace-derefs expr))
+      (vector? expr) (mapv replace-derefs expr)
+      (map? expr) (into {} (map replace-derefs expr))
+      (set? expr) `(hash-set ~@(map replace-derefs expr))
+      :else expr))))
 
 #?(:clj
 (defmacro fuse [& body]
-  `(make-fused-atom (fn [] ~@(map replace-derefs body)))))
+  (let [fused-sym (gensym "fused")]
+    `(make-fused-atom (fn [~fused-sym]
+                        ~@(map (partial replace-derefs fused-sym)
+                               body))))))
