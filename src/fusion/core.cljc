@@ -1,18 +1,19 @@
 (ns fusion.core
-  #?(:cljs (:require-macros fusion.core)))
+  #?(:clj (:import [clojure.lang Atom IDeref])
+     :cljs (:require-macros fusion.core)))
 
 (def ^:dynamic *watcher*)
 
 (defprotocol LazyWatchable
   (lazy-watch [this key f]))
 
-(extend-type #?(:clj clojure.lang.Atom :cljs Atom)
+(extend-type Atom
   LazyWatchable
   (lazy-watch [this key f]
     (add-watch this key (fn [_ _ _ _] (f)))))
 
 (deftype FusedAtom [f state]
-  #?(:clj clojure.lang.IDeref :cljs IDeref)
+  IDeref
   (#?(:clj deref :cljs -deref) [this]
     (binding [*watcher* this]
       @@state))
