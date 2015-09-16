@@ -26,8 +26,8 @@ Fused atoms are _lazy_: the body is not evaluated until it is dereferenced.
 Once evaluated, the value is stored for later.
 
 Atoms dereferenced in the body are automatically watched for changes - if `a`
-changes, then `sum` is dirtied so it will recompute the value the next time
-it is dereferenced.
+or `b` change, then `sum` is dirtied so it will recompute its value the next
+time it is dereferenced.
 
 ## Purpose
 
@@ -36,7 +36,7 @@ atoms. Events that trigger updates in a source atom can automatically propagate
 through any dependent (fused) atoms.
 
 Similar to ideas from Functional-Reactive Programming, though this library
-doesn't address the "event" side of things. State management only.
+doesn't address the event side of things. State propagation only.
 
 Actually, this is really just an excuse to practice test-driven development and
 library deployment. Hurray!
