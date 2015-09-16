@@ -8,16 +8,11 @@
   "Can fuse a constant"
   (is (= @(fuse :value) :value)))
 
-(deftest fuse-simple
-  "Fused atom holds the same value as the original"
-  (let [a (atom :value)
-        f (fuse @a)]
-    (is (= @f :value))))
-
 (deftest fuse-changes
   "Fused atom changes when the original does"
   (let [a (atom :value)
         f (fuse @a)]
+    (is (= @f :value))
     (reset! a :changed)
     (is (= @f :changed))))
 
@@ -25,6 +20,7 @@
   "Derefs within function calls are watched properly"
   (let [a (atom 0)
         f (fuse (inc @a))]
+    (is (= @f 1))
     (reset! a 1)
     (is (= @f 2))))
 
@@ -32,6 +28,7 @@
   "Derefs within vectors are watched properly"
   (let [a (atom :value)
         f (fuse [@a])]
+    (is (= @f [:value]))
     (reset! a :changed)
     (is (= @f [:changed]))))
 
@@ -39,6 +36,7 @@
   "Derefs within maps are watched properly"
   (let [a (atom :value)
         f (fuse {:a @a})]
+    (is (= @f {:a :value}))
     (reset! a :changed)
     (is (= @f {:a :changed}))))
 
@@ -46,6 +44,7 @@
   "Derefs within sets are watched properly"
   (let [a (atom :value)
         f (fuse #{@a})]
+    (is (= @f #{:value}))
     (reset! a :changed)
     (is (= @f #{:changed}))))
 
@@ -61,6 +60,7 @@
   (let [a (atom :value)
         b (atom a)
         f (fuse @@b)]
+    (is (= @f :value))
     (reset! a :changed)
     (is (= @f :changed))
     (reset! b (atom :new-atom))
@@ -90,5 +90,14 @@
   (let [a (atom :value)
         f1 (fuse @a)
         f2 (fuse @f1)]
+    (is (= @f2 :value))
     (reset! a :changed)
     (is (= @f2 :changed))))
+
+(deftest fuse-delay
+  "Can safely fuse a deref within a delay"
+  (let [a (atom :value)
+        f (fuse (delay @a))]
+    (is (= @@f :value))
+    (reset! a :changed)
+    (is (= @@f :changed))))
