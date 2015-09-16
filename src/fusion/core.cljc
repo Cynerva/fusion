@@ -1,6 +1,5 @@
 (ns fusion.core
-  #?(:clj (:import [clojure.lang Atom IDeref])
-     :cljs (:require-macros fusion.core)))
+  #?(:clj (:import [clojure.lang Atom IDeref])))
 
 (def ^:dynamic *watcher*)
 
