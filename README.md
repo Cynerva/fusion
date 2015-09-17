@@ -2,7 +2,7 @@
 
 State propagation via atoms. Usable in Clojure and ClojureScript.
 
-## Dependency
+Dependency:
 ```
 [twinfoxcreations/fusion "0.1.0-SNAPSHOT"]
 ```
