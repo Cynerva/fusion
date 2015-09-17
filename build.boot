@@ -1,3 +1,5 @@
+(def version "0.1.0-SNAPSHOT")
+
 (def dependencies '[[org.clojure/clojure "1.7.0"]
                     [org.clojure/clojurescript "1.7.48"]])
 
@@ -11,13 +13,15 @@
   :source-paths #{"test"}
   :dependencies dev-dependencies)
 
-(require '[adzerk.bootlaces :refer [push-snapshot]])
+(require '[adzerk.bootlaces :refer [bootlaces! push-snapshot]])
 (require '[adzerk.boot-test :refer [test]])
 (require '[crisptrutski.boot-cljs-test :refer [test-cljs]])
 
+(bootlaces! version)
+
 (task-options!
   pom {:project 'twinfoxcreations/fusion
-       :version "0.1.0-SNAPSHOT"}
+       :version version}
   test {:namespaces '[fusion.test]}
   push {:repo "clojars"})
 
