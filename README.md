@@ -5,7 +5,7 @@ State propagation via atoms. Usable in Clojure and ClojureScript.
 ## Installation
 Leiningen dependency:
 ```
-[twinfoxcreations/fusion "0.1.0-SNAPSHOT"]
+[twinfoxcreations/fusion "0.1.0"]
 ```
 
 ## Example

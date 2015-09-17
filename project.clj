@@ -1,4 +1,4 @@
-(defproject twinfoxcreations/fusion "0.1.0-SNAPSHOT"
+(defproject twinfoxcreations/fusion "0.1.0"
   :description "State propagation via atoms."
   :license {:name "CC0 1.0 Universal"
             :url "https://creativecommons.org/publicdomain/zero/1.0/"}
