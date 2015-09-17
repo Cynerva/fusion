@@ -1,7 +1,7 @@
 (ns fusion.test
   #?(:clj (:require [clojure.test :refer [deftest is]]
                     [fusion.core :refer [fuse]])
-     :cljs (:require [cljs.test :refer-macros [deftest is]]
+     :cljs (:require [cljs.test :refer-macros [deftest is run-tests]]
                      [fusion.core :refer-macros [fuse]])))
 
 (deftest fuse-constant
@@ -101,3 +101,6 @@
     (is (= @@f :value))
     (reset! a :changed)
     (is (= @@f :changed))))
+
+#?(:cljs (enable-console-print!))
+#?(:cljs (set! *main-cli-fn* #(run-tests)))
