@@ -11,5 +11,5 @@
 
 (task-options!
   pom {:project 'twinfoxcreations/fusion
-       :version "0.0.0"}
+       :version "0.1.0-SNAPSHOT"}
   test {:namespaces '[fusion.test]})
